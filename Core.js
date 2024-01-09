@@ -2,6 +2,7 @@
 
 process.on('uncaughtException', console.error)
 require("./config")
+const ytdl = require('ytdl-core')
 const { BufferJSON, WA_DEFAULT_EPHEMERAL, generateWAMessageFromContent, proto, generateWAMessageContent, generateWAMessage, prepareWAMessageMedia, areJidsSameUser, getContentType, WAFlag } = require('@adiwajshing/baileys')
 const zMiku = require("@adiwajshing/baileys")
 const fs = require('fs')
@@ -3341,8 +3342,8 @@ case 'music': case 'play': case 'song': case 'ytplay': {
  let search = await yts(text)
  let anu = search.videos[0]
  let buttons = [
- {buttonId: `${prefix}ytad ${text}`, buttonText: {displayText: '♫ Audio'}, type: 1},
- {buttonId: `${prefix}ytvd ${text}`, buttonText: {displayText: '► Video'}, type: 1}
+ {buttonId: `${prefix}ytad ${anu.url}`, buttonText: {displayText: '♫ Audio'}, type: 1},
+ {buttonId: `${prefix}ytvd ${anu.url}`, buttonText: {displayText: '► Video'}, type: 1}
 
  ]
  let buttonMessage = {
@@ -3366,37 +3367,112 @@ case 'music': case 'play': case 'song': case 'ytplay': {
  break
 
  case 'ytad': {
-    if (isBan) return reply(mess.banned)	 			
-    if (isBanChat) return reply(mess.bangc)
-    const YT=require('./lib/ytdlcore')
-    let yts = require("yt-search")
-    let search = await yts(text)
-    let anu = search.videos[0]
-    const ytmp3play = await YT.mp3(anu.url)
-    let stats = fs.statSync(ytmp3play.path)
-    let fileSizeInBytes = stats.size;
-    if (fileSizeInBytes > 60000000) return reply('Cant send audios longer than 60 MB!')
-    
- await Miku.sendMessage(from, {document: fs.readFileSync(ytmp3play.path),fileName: anu.title + '.mp3',mimetype: 'audio/mpeg',}, {quoted:m})
- }
- break
-
+    const getRandom = (ext) => {
+        return `${Math.floor(Math.random() * 10000)}${ext}`;
+      };
+        if (args.length === 0) {
+          reply(`❌ URL is empty! \nSend ${prefix}yta url`);
+          return;
+        }
+        let urlYt = args[0];
+        if (!urlYt.startsWith("http")) {
+          reply(`❌ Give youtube link!`);
+          return;
+        }
+        let infoYt = await ytdl.getInfo(urlYt);
+        //30 MIN
+        if (infoYt.videoDetails.lengthSeconds >= 1800) {
+          reply(`❌ Video too big!`);
+          return;
+        }
+        let titleYt = infoYt.videoDetails.title;
+        let randomName = getRandom(".mp3");
+      
+        const stream = ytdl(urlYt, {
+          filter: (info) => info.audioBitrate == 160 || info.audioBitrate == 128,
+        }).pipe(fs.createWriteStream(`./${randomName}`));
+        console.log("Audio downloading ->", urlYt);
+        // reply("Downloading.. This may take upto 5 min!");
+        await new Promise((resolve, reject) => {
+          stream.on("error", reject);
+          stream.on("finish", resolve);
+        });
+      
+        let stats = fs.statSync(`./${randomName}`);
+        let fileSizeInBytes = stats.size;
+        // Convert the file size to megabytes (optional)
+        let fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+        console.log("Audio downloaded ! Size: " + fileSizeInMegabytes);
+        if (fileSizeInMegabytes <= 40) {
+            Miku.sendMessage(
+             m.chat,
+            {
+              audio: fs.readFileSync(`./${randomName}`),
+              fileName: titleYt + ".mp3",
+              mimetype: "audio/mpeg",
+            },
+            { quoted:m }
+          );
+        } else {
+          m.reply(`❌ File size bigger than 40mb.`);
+        }
+       fs.unlinkSync(`./${randomName}`);
+    }
+break 
  case 'ytvd': {
-    if (isBan) return reply(mess.banned)	 			
- if (isBanChat) return reply(mess.bangc)
- const YT=require('./lib/ytdlcore')
-    let yts = require("yt-search")
-    let search = await yts(text)
-    let anu = search.videos[0]
-    const ytmp4play = await YT.mp4(anu.url)
-    let vidduration =ytmp4play.duration;
-    if (vidduration > 1800) return reply('Cant send videos longer than *30 min*')
- Miku.sendMessage(from, {video:{url:ytmp4play.videoUrl}, mimetype:"video/mp4", caption:anu.title+' By *Miku MD*',}, {quoted:m})
- }
- break
-
-
-
+    const getRandom = (ext) => {
+        return `${Math.floor(Math.random() * 10000)}${ext}`;
+      };
+        if (args.length === 0) {
+          m.reply(`❌ URL is empty! \nSend ${prefix}ytv url`);
+          return;
+        }
+        let urlYt = args[0];
+        if (!urlYt.startsWith("http")) {
+          m.reply(`❌ Give youtube link!`);
+          return;
+        }
+        let infoYt = await ytdl.getInfo(urlYt);
+        //30 MIN
+        if (infoYt.videoDetails.lengthSeconds >= 1800) {
+          m.reply(`❌ Video file too big!`);
+          return;
+        }
+        let titleYt = infoYt.videoDetails.title;
+        let randomName = getRandom(".mp4");
+      
+        const stream = ytdl(urlYt, {
+          filter: (info) => info.itag == 22 || info.itag == 18,
+        }).pipe(fs.createWriteStream(`./${randomName}`));
+        //22 - 1080p/720p and 18 - 360p
+        console.log("Video downloading ->", urlYt);
+        // reply("Downloading.. This may take upto 5 min!");
+        await new Promise((resolve, reject) => {
+          stream.on("error", reject);
+          stream.on("finish", resolve);
+        });
+      
+        let stats = fs.statSync(`./${randomName}`);
+        let fileSizeInBytes = stats.size;
+        // Convert the file size to megabytes (optional)
+        let fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+        console.log("Video downloaded ! Size: " + fileSizeInMegabytes);
+        if (fileSizeInMegabytes <= 100) {
+        Miku.sendMessage(
+            m.chat,
+            {
+              video: fs.readFileSync(`./${randomName}`),
+              caption: `${titleYt}`,
+            },
+            { quoted: m }
+          );
+        } else {
+          m.reply(`❌ File size bigger than 40mb.`);
+        }
+      
+        fs.unlinkSync(`./${randomName}`);
+    }
+break
  case 'ytmp3': case 'ytmusic':  case 'ytmp4': case 'ytvideo': case 'ytdl':{
     if (isBan) return reply(mess.banned)	 			
  if (isBanChat) return reply(mess.bangc)
@@ -3408,8 +3484,8 @@ case 'music': case 'play': case 'song': case 'ytplay': {
  let search = await yts(text)
  let anu = search.videos[0]
  let buttons = [
- {buttonId: `${prefix}ytad2 ${text}`, buttonText: {displayText: '♫ Audio'}, type: 1},
- {buttonId: `${prefix}ytvd2 ${text}`, buttonText: {displayText: '► Video'}, type: 1}
+ {buttonId: `${prefix}ytad ${anu.url}`, buttonText: {displayText: '♫ Audio'}, type: 1},
+ {buttonId: `${prefix}ytvd ${anu.url}`, buttonText: {displayText: '► Video'}, type: 1}
 
  ]
  let buttonMessage = {
@@ -3431,21 +3507,6 @@ case 'music': case 'play': case 'song': case 'ytplay': {
  Miku.sendMessage(m.chat, buttonMessage, { quoted: m })
  }
  break
-
-
- case 'ytad2': {
-    if (isBan) return reply(mess.banned)	 			
-    if (isBanChat) return reply(mess.bangc)
-    const YT=require('./lib/ytdlcore')
-    const ytmp3play2 = await YT.mp3(text)
-    let stats = fs.statSync(ytmp3play2.path)
-    let fileSizeInBytes = stats.size;
-    if (fileSizeInBytes > 60000000) return reply('Cant send audios longer than 60 MB!')
-    
- await Miku.sendMessage(from, {document: fs.readFileSync(ytmp3play2.path),fileName:'Miku_YTmp3_Downloader.mp3',mimetype: 'audio/mpeg',}, {quoted:m})
- }
- break
-
  case 'ytvd2': {
     if (isBan) return reply(mess.banned)	 			
  if (isBanChat) return reply(mess.bangc)
@@ -4542,10 +4603,7 @@ const { Anime } =require("@shineiichijo/marika")
     details += `*URL:* ${result.url}\n\n`;
     if (result.background !== null)
       details += `*Background:* ${result.background}\n\n`;
-    details += `*Description:* ${result.synopsis.replace(
-      /\[Written by MAL Rewrite]/g,
-      ""
-    )}`
+
 Miku.sendMessage(m.chat,{image:{url:result.images.jpg.large_image_url},caption:details},{quoted:m})   
 break
 

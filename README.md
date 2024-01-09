@@ -1,7 +1,7 @@
  https://user-images.githubusercontent.com/96835724/202911067-fbebff62-1566-4120-bd37-08311166b70b.mp4 
 
      
-<h1 align="center"> Miku Nakano (Beta)
+<h1 align="center"> Miku Nakano ( Outdated )
 </h1>
 <p align="center"> 
   Konochiwa Senpai, I am "Miku Nakano" a WhatsApp bot made by Fantox to do everything that is possible on WhatsApp based on WhatsApp Multi Device(MD) Support.
@@ -29,13 +29,16 @@
     <img src="(https://visitor-badge.glitch.me/badge?page_id=https://github.com/FantoX001/Shikimori-MD.visitor-badge&left_text=Total%20Repo%20Visitors)">
   </a>
   
+
+  
 </br>
       
-</br> 
+
    
-### ✧✧ Maintained by [Fantox](https://github.com/FantoX001) for bug fixes and more improments. More features  are coming soon. Check this main repo once in week to stay updated about latest updates.
+##  This bot is Out-Dated ! use our latest bot  [Atlas MD](https://github.com/FantoX001/Atlas-MD) to use mind-blowing features including `Economy` and `RPG`.
+  - Here's link to [Atlas MD](https://github.com/FantoX001/Atlas-MD)
 </br></br>
-  
+</br> 
   
 ## ✧✧ Setup before deploy (Optional):
 ### Go to `config.js`
@@ -156,6 +159,12 @@ heroku/nodejs
 ```
 <br>
 <br>
+<br>
+
+<a align="center">
+<img  src="https://upload.wikimedia.org/wikipedia/commons/b/b9/UserLAnd_Logo_PNG.png" width="100px">
+</a>
+
 
 ## ✧✧✧ UserLand Deployment Method(Android no root)
 #### ✧ Download `UserLand` application from Google Play Store.
@@ -235,7 +244,7 @@ npm start
 
 ## ✧✧✧ Join My Whatsapp Group for Support
 
-<a href="https://chat.whatsapp.com/JcBzjRIxM5UHfuJbt0KrWt"><img src="https://img.shields.io/badge/Join Group-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" />
+<a href="https://chat.whatsapp.com/D4EsvpDVGJT8WbxJVlSwWn"><img src="https://img.shields.io/badge/Join Group-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" />
 </a>
 
 ## ✧✧✧ CMD Deployment Method (Without downloading this code as .zip)
